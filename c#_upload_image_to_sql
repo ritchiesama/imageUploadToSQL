@@ -1,0 +1,119 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+using System.IO;
+
+namespace IM_Upload_Image
+{
+    public partial class FormUpload : Form
+    {
+        SqlConnection conn = new SqlConnection("Data Source =SQL_servern_name; Initial Catalog = database_name; User ID = type_UserID_here; Password = type_password_here");
+        SqlCommand command;
+        String imgLoc = "";
+        public FormUpload()
+        {
+            InitializeComponent();
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonUpload_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                byte[] img = null;
+                FileStream fs = new FileStream(imgLoc, FileMode.Open, FileAccess.Read);
+                BinaryReader br = new BinaryReader(fs);
+                img = br.ReadBytes((int)fs.Length);
+                string sql = "INSERT INTO dbo.images(imageid,imagename)VALUES("+textBoxID.Text+",@img)";
+                if (conn.State != ConnectionState.Open)
+                    conn.Open();
+            
+                command = new SqlCommand(sql, conn);
+                command.Parameters.Add(new SqlParameter("@img", img));
+                int x = command.ExecuteNonQuery();
+                conn.Close();
+                MessageBox.Show(x.ToString() + "record(s) saved.");
+                textBoxID.Text = "";
+                picEmp = null;
+            }
+            catch (Exception ex )
+            {
+                conn.Close();
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void buttonBrowse_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                OpenFileDialog dlg = new OpenFileDialog();
+                dlg.Filter = "PNG Files (*.PNG)|*.png|JPG Files (*.jpg)|*.jpg|ALL Files(*.*)|*.*";
+                dlg.Title = "Select Employee Picture";
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    imgLoc = dlg.FileName.ToString();
+                    picEmp.ImageLocation = imgLoc;
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void buttonView_Click(object sender, EventArgs e)
+        {
+            try
+            {
+               string sql = "SELECT imagename FROM dbo.images where imageid =" + textBoxID.Text+ "";
+               if (conn.State != ConnectionState.Open)
+                    conn.Open();
+                command = new SqlCommand(sql, conn);
+                SqlDataReader reader = command.ExecuteReader();
+                reader.Read();
+                if (reader.HasRows)
+                {
+                    byte[] img = (byte[])(reader[0]);
+                    if (img == null)
+                        picEmp.Image = null;
+                    else
+                    {
+                        MemoryStream ms = new MemoryStream(img);
+                        picEmp.Image = Image.FromStream(ms);
+                    }
+                }
+                else
+                {
+                    textBoxID.Text = "";
+                    picEmp = null;
+                    MessageBox.Show("This ID does not exist.");
+                }
+                conn.Close();
+
+            }
+            catch (Exception ex)
+            {
+                conn.Close();
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+    }
+}
