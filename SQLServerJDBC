@@ -1,0 +1,10 @@
+        String url = "jdbc:sqlserver://valpograd.database.windows.net;databaseName=master";
+        String user ="keymaster";
+        String pwd = "Viewmaster*";
+        
+        try{
+            Connection connection = DriverManager.getConnection(url,user,pwd);
+            System.out.println("Connected");
+        }catch(SQLException e){
+            System.out.println("error");
+        }
