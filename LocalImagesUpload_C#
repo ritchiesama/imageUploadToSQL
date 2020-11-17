@@ -14,7 +14,7 @@ namespace IM_Upload_Image
 {
     public partial class FormUpload : Form
     {
-        SqlConnection conn = new SqlConnection("Data Source =SQL_servern_name; Initial Catalog = database_name; User ID = type_UserID_here; Password = type_password_here");
+        SqlConnection conn = new SqlConnection("Data Source =XXX.XXX.XXX.COM; Initial Catalog = XXX; User ID =USERNAME; Password =PASSWORD");
         SqlCommand command;
         String imgLoc = "";
         public FormUpload()
@@ -40,7 +40,7 @@ namespace IM_Upload_Image
                 FileStream fs = new FileStream(imgLoc, FileMode.Open, FileAccess.Read);
                 BinaryReader br = new BinaryReader(fs);
                 img = br.ReadBytes((int)fs.Length);
-                string sql = "INSERT INTO dbo.images(imageid,imagename)VALUES("+textBoxID.Text+",@img)";
+                string sql = "INSERT INTO dbo.tableName(value1,)value2VALUES(" + textBoxID.Text+",@img)";
                 if (conn.State != ConnectionState.Open)
                     conn.Open();
             
@@ -51,6 +51,7 @@ namespace IM_Upload_Image
                 MessageBox.Show(x.ToString() + "record(s) saved.");
                 textBoxID.Text = "";
                 picEmp = null;
+
             }
             catch (Exception ex )
             {
@@ -82,8 +83,8 @@ namespace IM_Upload_Image
         {
             try
             {
-               string sql = "SELECT imagename FROM dbo.images where imageid =" + textBoxID.Text+ "";
-               if (conn.State != ConnectionState.Open)
+                string sql = "SELECT trackingid,logoimage FROM dbo.companylogos where trackingid =" + textBoxID.Text + "";
+                if (conn.State != ConnectionState.Open)
                     conn.Open();
                 command = new SqlCommand(sql, conn);
                 SqlDataReader reader = command.ExecuteReader();
@@ -115,5 +116,6 @@ namespace IM_Upload_Image
             }
 
         }
+
     }
 }
